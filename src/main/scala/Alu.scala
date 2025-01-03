@@ -23,6 +23,16 @@ object AluOp extends ChiselEnum {
   val SRL  = Value
   val SUB  = Value
   val XOR  = Value
+
+  // M extension
+  val MUL    = Value
+  val MULH   = Value
+  val MULHSU = Value
+  val MULHU  = Value
+  val DIV    = Value
+  val DIVU   = Value
+  val REM    = Value
+  val REMU   = Value
 }
 
 class Alu extends Module {
@@ -34,6 +44,10 @@ class Alu extends Module {
   })
 
   io.out := 0.U
+
+  val src1S = io.src1.asSInt
+  val src2S = io.src2.asSInt
+
   switch(io.op) {
     is(AluOp.ADD) {
       io.out := io.src1 + io.src2
@@ -77,5 +91,55 @@ class Alu extends Module {
     is(AluOp.XOR) {
       io.out := io.src1 ^ io.src2
     }
+
+    // ---------------------- M extension ---------------------- //
+    is(AluOp.MUL) {
+      io.out := (io.src1 * io.src2)(31, 0)
+    }
+    is(AluOp.MULH) {
+      // High 32 bits of 4-bit product, signed multiplication
+      val product = (src1S * src2S).asSInt
+      io.out := product(63, 32).asUInt
+    }
+    is(AluOp.MULHSU) {
+      // src1 has a number, src2 has no number
+      val product = (src1S * io.src2).asSInt
+      io.out := product(63, 32).asUInt
+    }
+    is(AluOp.MULHU) {
+      // All without numbers
+      val product = (io.src1 * io.src2)
+      io.out := product(63, 32)
+    }
+    is(AluOp.DIV) {
+      when(src2S === 0.S) {
+        // Divide by 0, the result is undefined
+        io.out := "hFFFFFFFF".U
+      }.otherwise {
+        io.out := (src1S / src2S).asUInt
+      }
+    }
+    is(AluOp.DIVU) {
+      when(io.src2 === 0.U) {
+        io.out := "hFFFFFFFF".U
+      }.otherwise {
+        io.out := io.src1 / io.src2
+      }
+    }
+    is(AluOp.REM) {
+      when(src2S === 0.S) {
+        io.out := src1S.asUInt
+      }.otherwise {
+        io.out := (src1S % src2S).asUInt
+      }
+    }
+    is(AluOp.REMU) {
+      when(io.src2 === 0.U) {
+        io.out := io.src1
+      }.otherwise {
+        io.out := io.src1 % io.src2
+      }
+    }
+    // ---------------------- M extension ---------------------- //
   }
 }

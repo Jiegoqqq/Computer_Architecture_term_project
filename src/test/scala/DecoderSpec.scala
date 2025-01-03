@@ -11,14 +11,61 @@ import chiseltest._
 
 class DecoderSpec extends AnyFlatSpec with ChiselScalatestTester with Matchers {
   behavior of "Decoder"
-
-  it should "not decode MUL" in {
+  // Remove or comment out the original "not decode MUL"
+  //it should "not decode MUL" in {
+    //test(new Decoder) { c =>
+     // c.io.inst.poke(assemble("mul, x1, x2, x3"))
+      //c.io.ctrl.exception.peekBoolean() shouldBe true
+    //}
+  //}
+  // ---------------------- M extension ---------------------- //
+  it should "decode MUL" in {
     test(new Decoder) { c =>
-      c.io.inst.poke(assemble("mul, x1, x2, x3"))
-      c.io.ctrl.exception.peekBoolean() shouldBe true
+      checkRType(c, "mul x1, x2, x3", AluOp.MUL, 1, 2, 3)
+    }
+  }
+  it should "decode MULH" in {
+    test(new Decoder) { c =>
+      checkRType(c, "mulh x1, x2, x3", AluOp.MULH, 1, 2, 3)
     }
   }
 
+  it should "decode MULHSU" in {
+    test(new Decoder) { c =>
+      checkRType(c, "mulhsu x1, x2, x3", AluOp.MULHSU, 1, 2, 3)
+    }
+  }
+
+  it should "decode MULHU" in {
+    test(new Decoder) { c =>
+      checkRType(c, "mulhu x1, x2, x3", AluOp.MULHU, 1, 2, 3)
+    }
+  }
+
+  it should "decode DIV" in {
+    test(new Decoder) { c =>
+      checkRType(c, "div x1, x2, x3", AluOp.DIV, 1, 2, 3)
+    }
+  }
+
+  it should "decode DIVU" in {
+    test(new Decoder) { c =>
+      checkRType(c, "divu x1, x2, x3", AluOp.DIVU, 1, 2, 3)
+    }
+  }
+
+  it should "decode REM" in {
+    test(new Decoder) { c =>
+      checkRType(c, "rem x1, x2, x3", AluOp.REM, 1, 2, 3)
+    }
+  }
+
+  it should "decode REMU" in {
+    test(new Decoder) { c =>
+      checkRType(c, "remu x1, x2, x3", AluOp.REMU, 1, 2, 3)
+    }
+  }
+  // ---------------------- M extension ---------------------- //
   it should "decode ADD" in {
     test(new Decoder) { c =>
       checkRType(c, "add x1, x2, x3", AluOp.ADD, 1, 2, 3)
@@ -54,6 +101,7 @@ class DecoderSpec extends AnyFlatSpec with ChiselScalatestTester with Matchers {
       checkRType(c, "sra x1, x2, x3", AluOp.SRA, 1, 2, 3)
     }
   }
+
 
   // See https://github.com/carlosedp/riscvassembler/issues/19.
   // it should "decode SRAI" in {
@@ -283,7 +331,23 @@ class DecoderSpec extends AnyFlatSpec with ChiselScalatestTester with Matchers {
     } else if (in == "fence") {
       "b00000000000000000000000000001111".U
     } else {
-      ("b" + RISCVAssembler.binOutput(in)).U
+        in match {
+        // ---------------------- M extension ---------------------- //
+        case "mul x1, x2, x3"    => "h023100B3".U  // funct7=1, funct3=0, opcode=0x33
+        case "mulh x1, x2, x3"   => "h023110B3".U(32.W)  // funct7=1, funct3=1
+        case "mulhsu x1, x2, x3" => "h023120B3".U  // funct7=1, funct3=2
+        case "mulhu x1, x2, x3"  => "h023130B3".U
+        case "div x1, x2, x3"    => "h023140B3".U  // funct7=1, funct3=4
+        case "divu x1, x2, x3"   => "h023150B3".U
+        case "rem x1, x2, x3"    => "h023160B3".U
+        case "remu x1, x2, x3"   => "h023170B3".U
+        
+        // ---------------------- M extension ---------------------- //
+        // If it is not the above M command, it will be handed over to the original Assembler.
+        // -------------------------------------------------
+        case _ => ("b" + RISCVAssembler.binOutput(in)).U
+      }
+
     }
   }
 

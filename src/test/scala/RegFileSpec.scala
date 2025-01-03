@@ -58,4 +58,17 @@ class RegFileSpec extends AnyFlatSpec with ChiselScalatestTester with Matchers {
       c.io.rs2Data.peekInt() shouldBe 3
     }
   }
+  // ---------------------- M extension ---------------------- //
+  it should "write to and read from higher registers" in {
+    test(new RegFile) { c =>
+      c.io.writeEnable.poke(true.B)
+      c.io.rd.poke(31.U)  // 測試 x31
+      c.io.writeData.poke(42.U)
+      c.clock.step()
+
+      c.io.rs1.poke(31.U)
+      c.io.rs1Data.peekInt() shouldBe 42
+    }
+  }
+  // ---------------------- M extension ---------------------- //
 }

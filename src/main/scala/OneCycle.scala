@@ -17,11 +17,12 @@ class OneCycle extends Module {
   val test = IO(new Bundle {
     val pc = Output(UInt(32.W))
     val regs = new Bundle {
-      val readAddr = Input(UInt(3.W))
+      val readAddr = Input(UInt(5.W))  // <-- Change to 5 bits, corresponding to 0~31
       val readData = Output(UInt(32.W))
     }
   })
 
+  // defult memory port
   io.imem <> MemoryPort.default
   io.dmem <> MemoryPort.default
 
@@ -30,24 +31,32 @@ class OneCycle extends Module {
   regFile.test.reg   := test.regs.readAddr
   test.regs.readData := regFile.test.regData
 
+  // PC initial value
   val pc = RegInit(0.U(32.W))
   test.pc       := pc
+
+  // Instruction memory read
   io.imem.addr  := pc
   io.imem.memOp := MemOp.LW
 
+  // Decoder
   val decoder = Module(new Decoder)
   decoder.io.inst := io.imem.readData
+  // Data memory operations
   io.dmem.memOp   := decoder.io.ctrl.memOp
 
+  // ALU
   val alu = Module(new Alu)
   alu.io.op   := decoder.io.ctrl.aluOp
   alu.io.src1 := DontCare
   alu.io.src2 := DontCare
 
+  // halted
   val halted = RegNext(io.signals.halted, false.B)
   io.signals.halted := decoder.io.ctrl.exception || io.dmem.misaligned ||
     io.imem.misaligned || halted
 
+  // Read register file
   regFile.io.rs1 := decoder.io.ctrl.rs1
   val rs1Data = regFile.io.rs1Data
 
@@ -58,9 +67,14 @@ class OneCycle extends Module {
   regFile.io.writeEnable := false.B
   regFile.io.writeData   := DontCare
 
+  // PC + 4 與 PC + Imm
   val pcPlus4   = pc + 4.U
   val pcPlusImm = pc + decoder.io.ctrl.imm.asUInt
   val nextPc    = Wire(UInt(32.W))
+
+  //----------------------------------
+  // branch or jump handling
+  //----------------------------------
   when(decoder.io.ctrl.isBranch) {
     alu.io.src1 := rs1Data
     alu.io.src2 := rs2Data
@@ -141,7 +155,7 @@ class OneCycleSim(init: List[Int] = List()) extends Module {
     val loaded = Output(Bool())
     val pc     = Output(UInt(32.W))
     val regs = new Bundle {
-      val readAddr = Input(UInt(3.W))
+      val readAddr = Input(UInt(5.W))  // <-- Change to 5 bits, corresponding to 0~31
       val readData = Output(UInt(32.W))
     }
   })

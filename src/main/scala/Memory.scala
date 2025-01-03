@@ -1,3 +1,4 @@
+//MEM（Memory Access）
 package mrv
 
 import chisel3._
@@ -38,6 +39,8 @@ object MemoryPort {
 class Memory(words: Int = 8) extends Module {
   val io = IO(Flipped(new MemoryPort))
 
+  // 以 byte-addressable, 每個 word = 4 Bytes
+  // Mem 大小為 words 個 word，每個 word 是 4 bytes
   private val mem = Mem(words, Vec(4, UInt(8.W)))
 
   when(io.memOp.isOneOf(Seq(MemOp.SB, MemOp.SH, MemOp.SW))) {
@@ -118,6 +121,9 @@ class Memory(words: Int = 8) extends Module {
   }
 }
 
+/**
+ * 記憶體模擬
+ */
 class MemorySim(init: List[Int] = List(), var numWords: Int = 0)
     extends Module {
   val io = IO(new Bundle {

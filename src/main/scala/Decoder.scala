@@ -1,8 +1,10 @@
+//ID（Instruction Decoder）
 package mrv
 
 import chisel3._
 import chisel3.util._
 import chisel3.experimental.ChiselEnum
+import mrv.Inst
 
 object SpecialOp extends ChiselEnum {
   val NONE   = Value
@@ -20,9 +22,9 @@ class Ctrl extends Bundle {
   val aluOp     = AluOp()
   val memOp     = MemOp()
   val specialOp = SpecialOp()
-  val rs1       = UInt(4.W)
-  val rs2       = UInt(4.W)
-  val rd        = UInt(4.W)
+  val rs1       = UInt(5.W)   // Change to 5 digits
+  val rs2       = UInt(5.W)   // Change to 5 digits
+  val rd        = UInt(5.W)   // Change to 5 digits
   val imm       = SInt(32.W)
 
   val useImm   = Bool()
@@ -41,6 +43,18 @@ class Decoder extends Module {
     //   exception, format, aluOp,     memOp,      specialOp,  isBranch
     List(true.B, DontCare, AluOp.NONE, MemOp.NONE, SpecialOp.NONE, false.B),
     Array(
+
+      // ---------------------- M extension ---------------------- //
+      Inst.MUL    -> List(false.B, InstFormat.R, AluOp.MUL, MemOp.NONE, SpecialOp.NONE, false.B),
+      Inst.MULH   -> List(false.B, InstFormat.R, AluOp.MULH,   MemOp.NONE, SpecialOp.NONE, false.B),
+      Inst.MULHSU -> List(false.B, InstFormat.R, AluOp.MULHSU, MemOp.NONE, SpecialOp.NONE, false.B),
+      Inst.MULHU  -> List(false.B, InstFormat.R, AluOp.MULHU,  MemOp.NONE, SpecialOp.NONE, false.B),
+      Inst.DIV    -> List(false.B, InstFormat.R, AluOp.DIV,    MemOp.NONE, SpecialOp.NONE, false.B),
+      Inst.DIVU   -> List(false.B, InstFormat.R, AluOp.DIVU,   MemOp.NONE, SpecialOp.NONE, false.B),
+      Inst.REM    -> List(false.B, InstFormat.R, AluOp.REM,    MemOp.NONE, SpecialOp.NONE, false.B),
+      Inst.REMU   -> List(false.B, InstFormat.R, AluOp.REMU,   MemOp.NONE, SpecialOp.NONE, false.B),
+      // ---------------------- M extension ---------------------- //
+      
       // Arithmetic
       Inst.ADD -> List(false.B, InstFormat.R, AluOp.ADD, MemOp.NONE, SpecialOp.NONE, false.B),
       Inst.ADDI -> List(false.B, InstFormat.I, AluOp.ADD, MemOp.NONE, SpecialOp.NONE, false.B),
@@ -88,10 +102,12 @@ class Decoder extends Module {
       Inst.FENCE -> List(false.B, InstFormat.I, AluOp.NONE, MemOp.NONE, SpecialOp.FENCE, false.B),
       Inst.ECALL -> List(false.B, InstFormat.I, AluOp.NONE, MemOp.NONE, SpecialOp.ECALL, false.B),
       Inst.EBREAK -> List(false.B, InstFormat.I, AluOp.NONE, MemOp.NONE, SpecialOp.EBREAK, false.B),
+    
     ),
   // format: on
   )
 
+  // Assign to Ctrl
   io.ctrl.exception := signals(0)
   val instFormat = signals(1)
   io.ctrl.aluOp     := signals(2)
@@ -105,7 +121,8 @@ class Decoder extends Module {
 
   // Decode immediate
   io.ctrl.useImm := false.B
-  io.ctrl.imm    := DontCare
+  io.ctrl.imm    := 0.S
+
   switch(instFormat) {
     is(InstFormat.I) {
       io.ctrl.imm    := io.inst(31, 20).asSInt

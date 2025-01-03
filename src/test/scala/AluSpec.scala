@@ -150,4 +150,67 @@ class AluSpec extends AnyFlatSpec with ChiselScalatestTester {
       )
     }
   }
+  // ---------------------- M extension ---------------------- //
+  it should "mul" in {
+    test(new Alu) { c =>
+      checkAluOp(c, AluOp.MUL, -10 until 10, (x, y) => (x * y) & 0xFFFFFFFFL)
+    }
+  }
+
+  it should "mulh" in {
+    test(new Alu) { c =>
+      checkAluOp(c, AluOp.MULH, -10 until 10, (x, y) =>
+        ((x * y) >> 32) & 0xFFFFFFFFL
+      )
+    }
+  }
+
+  it should "mulhsu" in {
+    test(new Alu) { c =>
+      checkAluOp(c, AluOp.MULHSU, -10 until 10, (x, y) =>
+        ((BigInt(x) * BigInt(y & 0xFFFFFFFFL)) >> 32).toLong & 0xFFFFFFFFL
+      )
+    }
+  }
+
+  it should "mulhu" in {
+    test(new Alu) { c =>
+      checkAluOp(c, AluOp.MULHU, 0 until 20, (x, y) =>
+        ((BigInt(x & 0xFFFFFFFFL) * BigInt(y & 0xFFFFFFFFL)) >> 32).toLong
+      )
+    }
+  }
+
+  it should "div" in {
+    test(new Alu) { c =>
+      checkAluOp(c, AluOp.DIV, -10 until 10, (x, y) =>
+        if (y != 0) (x / y) else -1
+      )
+    }
+  }
+
+  it should "divu" in {
+    test(new Alu) { c =>
+      checkAluOp(c, AluOp.DIVU, 0 until 20, (x, y) =>
+        if (y != 0) (x & 0xFFFFFFFFL) / (y & 0xFFFFFFFFL) else 0xFFFFFFFFL
+      )
+    }
+  }
+
+  it should "rem" in {
+    test(new Alu) { c =>
+      checkAluOp(c, AluOp.REM, -10 until 10, (x, y) =>
+        if (y != 0) (x % y) else x
+      )
+    }
+  }
+
+  it should "remu" in {
+    test(new Alu) { c =>
+      checkAluOp(c, AluOp.REMU, 0 until 20, (x, y) =>
+        if (y != 0) (x & 0xFFFFFFFFL) % (y & 0xFFFFFFFFL) else x & 0xFFFFFFFFL
+      )
+    }
+  }
+  // ---------------------- M extension ---------------------- //
 }
