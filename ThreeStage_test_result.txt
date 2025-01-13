@@ -1,0 +1,146 @@
+[info] welcome to sbt 1.8.0 (Eclipse Adoptium Java 11.0.21)
+[info] loading settings for project computer_architecture_term_project-build from plugins.sbt ...
+[info] loading project definition from /home/jienan/term_project/Computer_Architecture_term_project/project
+[info] loading settings for project root from build.sbt ...
+[info] set current project to chisel-test (in build file:/home/jienan/term_project/Computer_Architecture_term_project/)
+[info] compiling 1 Scala source to /home/jienan/term_project/Computer_Architecture_term_project/target/scala-2.13/test-classes ...
+[info] RegFileSpec:
+[info] RegFile
+[info] - should read back a written value
+[info] - should read zeros from the zero register
+[info] - should read rs1 and rs2 at the same time
+[info] - should write to and read from higher registers
+[info] MemorySpec:
+[info] Memory
+[info] - should allow initialisation from list
+[info] - should read back a value written
+[info] - should read back values written to separate addresses
+[info] - should read back the previous value in a read/write conflict
+[info] - should handle sub-word writes correctly
+[info] - should handle sub-word reads correctly
+[info] - should not allow misaligned accesses
+[info] ThreeStageSpec:
+[info] ThreeStageCPU
+[info] - should load instructions (simple test: read x1 after addi x1, x0, 5)
+[info] - should handle sequential instructions (addi x1=5, addi x2=3 => x2=3, x1=5)
+[info] - should write then read from the same register (RAW hazard) - (addi x1=10, addi x2, x1, 5 => x2=15)
+[info] - should support memory load/store
+[info] - should handle writes to registers
+[info] - should handle reads from registers
+[info] - should handle writes to memory
+[info] - should handle reads from memory
+[info] - should ignore ecall, ebreak and fence
+[info] - should handle mul
+[info] - should handle mulh
+[info] - should handle mulhsu
+[info] - should handle mulhu
+[info] - should handle div
+[info] - should handle divu
+[info] - should handle rem
+[info] - should handle remu
+[info] AluSpec:
+[info] ALU
+[info] - should none
+[info] - should add
+[info] - should subtract
+[info] - should and
+[info] - should or
+[info] - should xor
+[info] - should sra
+[info] - should srl
+[info] - should sll
+[info] - should eq
+[info] - should ne
+[info] - should lt
+[info] - should ltu
+[info] - should ge
+[info] - should geu
+[info] - should mul
+[info] - should mulh
+[info] - should mulhsu
+[info] - should mulhu
+[info] - should div
+[info] - should divu
+[info] - should rem
+[info] - should remu
+[info] OneCycleSpec:
+[info] OneCycle
+[info] - should halt on invalid instruction
+[info] - should halt on misaligned memory access
+[info] - should keep asserting halt
+[info] - should not halt on valid instruction
+[info] - should handle jal
+[info] - should handle jalr
+[info] - should handle writes to registers
+[info] - should handle reads from registers
+[info] - should handle reads and writes to the same register
+[info] - should handle writes to memory
+[info] - should handle reads from memory
+[info] - should handle auipc
+[info] - should handle lui
+[info] - should handle backwards conditional branches
+[info] - should handle forwards conditional branches
+[info] - should ignore ecall, ebreak and fence
+[info] - should handle mul
+[info] - should handle mulh
+[info] - should handle mulhsu
+[info] - should handle mulhu
+[info] - should handle div
+[info] - should handle divu
+[info] - should handle rem
+[info] - should handle remu
+[info] DecoderSpec:
+[info] Decoder
+[info] - should decode MUL
+[info] - should decode MULH
+[info] - should decode MULHSU
+[info] - should decode MULHU
+[info] - should decode DIV
+[info] - should decode DIVU
+[info] - should decode REM
+[info] - should decode REMU
+[info] - should decode ADD
+[info] - should decode ADDI
+[info] - should decode SUB
+[info] - should decode AND
+[info] - should decode ANDI
+[info] - should decode SRA
+[info] - should decode SRL
+[info] - should decode SRLI
+[info] - should decode SLL
+[info] - should decode SLLI
+[info] - should decode SLT
+[info] - should decode SLTU
+[info] - should decode SLTIU
+[info] - should decode SLTI
+[info] - should decode OR
+[info] - should decode ORI
+[info] - should decode XOR
+[info] - should decode XORI
+[info] - should decode JAL
+[info] - should decode JALR
+[info] - should decode LB
+[info] - should decode LBU
+[info] - should decode LH
+[info] - should decode LHU
+[info] - should decode LW
+[info] - should decode SB
+[info] - should decode SH
+[info] - should decode SW
+[info] - should decode BEQ
+[info] - should decode BNE
+[info] - should decode BLT
+[info] - should decode BLTU
+[info] - should decode BGE
+[info] - should decode BGEU
+[info] - should decode AUIPC
+[info] - should decode LUI
+[info] - should decode FENCE
+[info] - should decode EBREAK
+[info] - should decode ECALL
+[info] Run completed in 13 seconds, 59 milliseconds.
+[info] Total number of tests run: 122
+[info] Suites: completed 6, aborted 0
+[info] Tests: succeeded 122, failed 0, canceled 0, ignored 0, pending 0
+[info] All tests passed.
+[success] Total time: 16 s, completed Jan 12, 2025, 8:26:03 PM

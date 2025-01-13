@@ -29,6 +29,8 @@ class Ctrl extends Bundle {
 
   val useImm   = Bool()
   val isBranch = Bool()
+  // 新增 regWrite
+  val regWrite = Bool()
 }
 
 class Decoder extends Module {
@@ -40,68 +42,68 @@ class Decoder extends Module {
   val signals = ListLookup(
     io.inst,
     // format: off
-    //   exception, format, aluOp,     memOp,      specialOp,  isBranch
-    List(true.B, DontCare, AluOp.NONE, MemOp.NONE, SpecialOp.NONE, false.B),
+    //   exception, format, aluOp,     memOp,      specialOp,     isBranch, regWrite
+    List(true.B,    DontCare, AluOp.NONE, MemOp.NONE, SpecialOp.NONE, false.B, false.B),
     Array(
 
       // ---------------------- M extension ---------------------- //
-      Inst.MUL    -> List(false.B, InstFormat.R, AluOp.MUL, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.MULH   -> List(false.B, InstFormat.R, AluOp.MULH,   MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.MULHSU -> List(false.B, InstFormat.R, AluOp.MULHSU, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.MULHU  -> List(false.B, InstFormat.R, AluOp.MULHU,  MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.DIV    -> List(false.B, InstFormat.R, AluOp.DIV,    MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.DIVU   -> List(false.B, InstFormat.R, AluOp.DIVU,   MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.REM    -> List(false.B, InstFormat.R, AluOp.REM,    MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.REMU   -> List(false.B, InstFormat.R, AluOp.REMU,   MemOp.NONE, SpecialOp.NONE, false.B),
+      Inst.MUL    -> List(false.B, InstFormat.R, AluOp.MUL, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.MULH   -> List(false.B, InstFormat.R, AluOp.MULH,   MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.MULHSU -> List(false.B, InstFormat.R, AluOp.MULHSU, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.MULHU  -> List(false.B, InstFormat.R, AluOp.MULHU,  MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.DIV    -> List(false.B, InstFormat.R, AluOp.DIV,    MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.DIVU   -> List(false.B, InstFormat.R, AluOp.DIVU,   MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.REM    -> List(false.B, InstFormat.R, AluOp.REM,    MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.REMU   -> List(false.B, InstFormat.R, AluOp.REMU,   MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
       // ---------------------- M extension ---------------------- //
       
       // Arithmetic
-      Inst.ADD -> List(false.B, InstFormat.R, AluOp.ADD, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.ADDI -> List(false.B, InstFormat.I, AluOp.ADD, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.AND -> List(false.B, InstFormat.R, AluOp.AND, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.ANDI -> List(false.B, InstFormat.I, AluOp.AND, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.OR -> List(false.B, InstFormat.R, AluOp.OR, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.ORI -> List(false.B, InstFormat.I, AluOp.OR, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.SLL -> List(false.B, InstFormat.R, AluOp.SLL, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.SLLI -> List(false.B, InstFormat.I, AluOp.SLL, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.SLT -> List(false.B, InstFormat.R, AluOp.SLT, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.SLTI -> List(false.B, InstFormat.I, AluOp.SLT, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.SLTIU -> List(false.B, InstFormat.I, AluOp.SLTU, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.SLTU -> List(false.B, InstFormat.R, AluOp.SLTU, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.SRA -> List(false.B, InstFormat.R, AluOp.SRA, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.SRAI -> List(false.B, InstFormat.I, AluOp.SRA, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.SRL -> List(false.B, InstFormat.R, AluOp.SRL, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.SRLI -> List(false.B, InstFormat.I, AluOp.SRL, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.SUB -> List(false.B, InstFormat.R, AluOp.SUB, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.XOR -> List(false.B, InstFormat.R, AluOp.XOR, MemOp.NONE, SpecialOp.NONE, false.B),
-      Inst.XORI -> List(false.B, InstFormat.I, AluOp.XOR, MemOp.NONE, SpecialOp.NONE, false.B),
+      Inst.ADD -> List(false.B, InstFormat.R, AluOp.ADD, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.ADDI -> List(false.B, InstFormat.I, AluOp.ADD, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.AND -> List(false.B, InstFormat.R, AluOp.AND, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.ANDI -> List(false.B, InstFormat.I, AluOp.AND, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.OR -> List(false.B, InstFormat.R, AluOp.OR, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.ORI -> List(false.B, InstFormat.I, AluOp.OR, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.SLL -> List(false.B, InstFormat.R, AluOp.SLL, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.SLLI -> List(false.B, InstFormat.I, AluOp.SLL, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.SLT -> List(false.B, InstFormat.R, AluOp.SLT, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.SLTI -> List(false.B, InstFormat.I, AluOp.SLT, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.SLTIU -> List(false.B, InstFormat.I, AluOp.SLTU, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.SLTU -> List(false.B, InstFormat.R, AluOp.SLTU, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.SRA -> List(false.B, InstFormat.R, AluOp.SRA, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.SRAI -> List(false.B, InstFormat.I, AluOp.SRA, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.SRL -> List(false.B, InstFormat.R, AluOp.SRL, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.SRLI -> List(false.B, InstFormat.I, AluOp.SRL, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.SUB -> List(false.B, InstFormat.R, AluOp.SUB, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.XOR -> List(false.B, InstFormat.R, AluOp.XOR, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
+      Inst.XORI -> List(false.B, InstFormat.I, AluOp.XOR, MemOp.NONE, SpecialOp.NONE, false.B,  true.B),
 
       // Jumps and branches
-      Inst.JAL -> List(false.B, InstFormat.J, AluOp.ADD, MemOp.NONE, SpecialOp.JAL, false.B),
-      Inst.JALR -> List(false.B, InstFormat.I, AluOp.ADD, MemOp.NONE, SpecialOp.JALR, false.B),
-      Inst.BEQ -> List(false.B, InstFormat.B, AluOp.EQ, MemOp.NONE, SpecialOp.NONE, true.B),
-      Inst.BNE -> List(false.B, InstFormat.B, AluOp.NE, MemOp.NONE, SpecialOp.NONE, true.B),
-      Inst.BLT -> List(false.B, InstFormat.B, AluOp.LT, MemOp.NONE, SpecialOp.NONE, true.B),
-      Inst.BLTU -> List(false.B, InstFormat.B, AluOp.LTU, MemOp.NONE, SpecialOp.NONE, true.B),
-      Inst.BGE -> List(false.B, InstFormat.B, AluOp.GE, MemOp.NONE, SpecialOp.NONE, true.B),
-      Inst.BGEU -> List(false.B, InstFormat.B, AluOp.GEU, MemOp.NONE, SpecialOp.NONE, true.B),
+      Inst.JAL -> List(false.B, InstFormat.J, AluOp.ADD, MemOp.NONE, SpecialOp.JAL, false.B,  true.B),
+      Inst.JALR -> List(false.B, InstFormat.I, AluOp.ADD, MemOp.NONE, SpecialOp.JALR, false.B,  true.B),
+      Inst.BEQ -> List(false.B, InstFormat.B, AluOp.EQ, MemOp.NONE, SpecialOp.NONE, true.B,  false.B),
+      Inst.BNE -> List(false.B, InstFormat.B, AluOp.NE, MemOp.NONE, SpecialOp.NONE, true.B,  false.B),
+      Inst.BLT -> List(false.B, InstFormat.B, AluOp.LT, MemOp.NONE, SpecialOp.NONE, true.B,  false.B),
+      Inst.BLTU -> List(false.B, InstFormat.B, AluOp.LTU, MemOp.NONE, SpecialOp.NONE, true.B,  false.B),
+      Inst.BGE -> List(false.B, InstFormat.B, AluOp.GE, MemOp.NONE, SpecialOp.NONE, true.B,  false.B),
+      Inst.BGEU -> List(false.B, InstFormat.B, AluOp.GEU, MemOp.NONE, SpecialOp.NONE, true.B,  false.B),
 
       // Memory
-      Inst.LB -> List(false.B, InstFormat.I, AluOp.ADD, MemOp.LB, SpecialOp.NONE, false.B),
-      Inst.LBU -> List(false.B, InstFormat.I, AluOp.ADD, MemOp.LBU, SpecialOp.NONE, false.B),
-      Inst.LH -> List(false.B, InstFormat.I, AluOp.ADD, MemOp.LH, SpecialOp.NONE, false.B),
-      Inst.LHU -> List(false.B, InstFormat.I, AluOp.ADD, MemOp.LHU, SpecialOp.NONE, false.B),
-      Inst.LW -> List(false.B, InstFormat.I, AluOp.ADD, MemOp.LW, SpecialOp.NONE, false.B),
-      Inst.SB -> List(false.B, InstFormat.S, AluOp.ADD, MemOp.SB, SpecialOp.NONE, false.B),
-      Inst.SH -> List(false.B, InstFormat.S, AluOp.ADD, MemOp.SH, SpecialOp.NONE, false.B),
-      Inst.SW -> List(false.B, InstFormat.S, AluOp.ADD, MemOp.SW, SpecialOp.NONE, false.B),
+      Inst.LB -> List(false.B, InstFormat.I, AluOp.ADD, MemOp.LB, SpecialOp.NONE, false.B,  true.B),
+      Inst.LBU -> List(false.B, InstFormat.I, AluOp.ADD, MemOp.LBU, SpecialOp.NONE, false.B,  true.B),
+      Inst.LH -> List(false.B, InstFormat.I, AluOp.ADD, MemOp.LH, SpecialOp.NONE, false.B,  true.B),
+      Inst.LHU -> List(false.B, InstFormat.I, AluOp.ADD, MemOp.LHU, SpecialOp.NONE, false.B,  true.B),
+      Inst.LW -> List(false.B, InstFormat.I, AluOp.ADD, MemOp.LW, SpecialOp.NONE, false.B,  true.B),
+      Inst.SB -> List(false.B, InstFormat.S, AluOp.ADD, MemOp.SB, SpecialOp.NONE, false.B,  false.B),
+      Inst.SH -> List(false.B, InstFormat.S, AluOp.ADD, MemOp.SH, SpecialOp.NONE, false.B,  false.B),
+      Inst.SW -> List(false.B, InstFormat.S, AluOp.ADD, MemOp.SW, SpecialOp.NONE, false.B,  false.B),
 
       // Special
-      Inst.AUIPC -> List(false.B, InstFormat.U, AluOp.NONE, MemOp.NONE, SpecialOp.AUIPC, false.B),
-      Inst.LUI -> List(false.B, InstFormat.U, AluOp.NONE, MemOp.NONE, SpecialOp.LUI, false.B),
-      Inst.FENCE -> List(false.B, InstFormat.I, AluOp.NONE, MemOp.NONE, SpecialOp.FENCE, false.B),
-      Inst.ECALL -> List(false.B, InstFormat.I, AluOp.NONE, MemOp.NONE, SpecialOp.ECALL, false.B),
-      Inst.EBREAK -> List(false.B, InstFormat.I, AluOp.NONE, MemOp.NONE, SpecialOp.EBREAK, false.B),
+      Inst.AUIPC -> List(false.B, InstFormat.U, AluOp.NONE, MemOp.NONE, SpecialOp.AUIPC, false.B,  true.B),
+      Inst.LUI -> List(false.B, InstFormat.U, AluOp.NONE, MemOp.NONE, SpecialOp.LUI, false.B,  true.B),
+      Inst.FENCE -> List(false.B, InstFormat.I, AluOp.NONE, MemOp.NONE, SpecialOp.FENCE, false.B,  false.B),
+      Inst.ECALL -> List(false.B, InstFormat.I, AluOp.NONE, MemOp.NONE, SpecialOp.ECALL, false.B,  false.B),
+      Inst.EBREAK -> List(false.B, InstFormat.I, AluOp.NONE, MemOp.NONE, SpecialOp.EBREAK, false.B,  false.B),
     
     ),
   // format: on
@@ -114,6 +116,7 @@ class Decoder extends Module {
   io.ctrl.memOp     := signals(3)
   io.ctrl.specialOp := signals(4)
   io.ctrl.isBranch  := signals(5)
+  io.ctrl.regWrite  := signals(6)
 
   io.ctrl.rd  := io.inst(11, 7)
   io.ctrl.rs1 := io.inst(19, 15)
@@ -124,18 +127,19 @@ class Decoder extends Module {
   io.ctrl.imm    := 0.S
 
   switch(instFormat) {
+  
     is(InstFormat.I) {
       io.ctrl.imm    := io.inst(31, 20).asSInt
       io.ctrl.useImm := true.B
     }
     is(InstFormat.J) {
+      // 修正 J 型立即數解碼邏輯
       io.ctrl.imm := Cat(
-        Fill(12, io.inst(31)),
-        io.inst(19, 12),
-        io.inst(20),
-        io.inst(30, 25),
-        io.inst(24, 21),
-        0.U(1.W),
+        io.inst(31),           // 符號位元
+        io.inst(19, 12),       // [19:12]
+        io.inst(20),           // [11]
+        io.inst(30, 21),       // [10:1]
+        0.U(1.W)               // [0]
       ).asSInt
       io.ctrl.useImm := true.B
     }

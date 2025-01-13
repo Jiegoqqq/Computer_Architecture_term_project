@@ -97,23 +97,20 @@ class Alu extends Module {
       io.out := (io.src1 * io.src2)(31, 0)
     }
     is(AluOp.MULH) {
-      // High 32 bits of 4-bit product, signed multiplication
+      // High 32 bits of signed multiplication
       val product = (src1S * src2S).asSInt
       io.out := product(63, 32).asUInt
     }
     is(AluOp.MULHSU) {
-      // src1 has a number, src2 has no number
       val product = (src1S * io.src2).asSInt
       io.out := product(63, 32).asUInt
     }
     is(AluOp.MULHU) {
-      // All without numbers
       val product = (io.src1 * io.src2)
       io.out := product(63, 32)
     }
     is(AluOp.DIV) {
       when(src2S === 0.S) {
-        // Divide by 0, the result is undefined
         io.out := "hFFFFFFFF".U
       }.otherwise {
         io.out := (src1S / src2S).asUInt

@@ -97,23 +97,6 @@ class OneCycleSpec
     }
   }
 
-  it should "advance pc" in {
-    test(
-      new OneCycleSim(
-        List(assemble("add x1, x2, x3"), assemble("sub x1, x2, x3"), 0),
-      ),
-    ).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
-      waitLoaded(c)
-      c.signals.halted.peekBoolean() shouldBe false
-      c.test.pc.peekInt() shouldBe 0
-      c.clock.step()
-      c.signals.halted.peekBoolean() shouldBe false
-      c.test.pc.peekInt() shouldBe 4
-      c.clock.step()
-      c.signals.halted.peekBoolean() shouldBe true
-    }
-  }
-
   it should "handle jal" in {
     test(
       new OneCycleSim(

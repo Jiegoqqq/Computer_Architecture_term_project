@@ -8,7 +8,7 @@ import chisel3.util._
  */
 class RegFile extends Module {
   val io = IO(new Bundle {
-    // 改為 5 位元 (0~31)
+    // 5 bits address (0~31)
     val rs1 = Input(UInt(5.W))
     val rs2 = Input(UInt(5.W))
     val rd  = Input(UInt(5.W))
@@ -27,7 +27,7 @@ class RegFile extends Module {
 
   // 32 32-bit registers
   val regs = Mem(32, UInt(32.W))
-
+  
   // Default output
   io.rs1Data   := 0.U
   io.rs2Data   := 0.U
