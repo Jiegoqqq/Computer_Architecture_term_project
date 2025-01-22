@@ -435,7 +435,7 @@ class ThreeStageSpec
       Integer.parseUnsignedInt(binStr, 2)
     }.toList
   }
-  it should "Quiz test 2 (logint)" in {
+  it should "Quiz test 3 (logint)" in {
     val code =
       """addi x2, x0, 16   # x2 = N=16
         |addi x3, x0, 0    # x3 = i=0

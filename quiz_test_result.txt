@@ -26,7 +26,7 @@
 [info] - should handle remu
 [info] - should Quiz test 1 (handle absolute value)
 [info] - should Quiz test 2 (n*m via mul)
-[info] - should Quiz test 2 (logint) *** FAILED ***
+[info] - should Quiz test 3 (logint) *** FAILED ***
 [info]   0 was not equal to 4 (ThreeStageSpec.scala:466)
 [info] Run completed in 15 seconds, 501 milliseconds.
 [info] Total number of tests run: 20
