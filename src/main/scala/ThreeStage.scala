@@ -128,6 +128,7 @@ class ThreeStageCPU extends Module {
   ex_alu.io.src1 := forwardA
   ex_alu.io.src2 := Mux(if_id.io.out.ctrl.useImm, if_id.io.out.ctrl.imm.asUInt, forwardB)
 
+
   ex_mem.io.in.aluOut := ex_alu.io.out
 
   ex_mem.io.in.ctrl := if_id.io.out.ctrl
@@ -190,7 +191,7 @@ class ThreeStageCPU extends Module {
   test.pc := pc
 }
 
-// -------------------- ThreeStageSim --------------------
+// -------------------- ThreeStageSim (測試用) --------------------
 class ThreeStageSim(init: List[Int] = List()) extends Module {
   val signals = IO(Output(new CpuSignals))
 

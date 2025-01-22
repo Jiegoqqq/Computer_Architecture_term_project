@@ -376,4 +376,96 @@ class ThreeStageSpec
       peekReg(c, 1) shouldBe 1
     }
   }
+  
+  it should "Quiz test 1 (handle absolute value)" in {
+    test(new ThreeStageSim(List(
+      // x1 = -5
+      assemble("addi x1, x0, -5"),
+      // x1 = 0 - x1 (即 x1 = 5)
+      assemble("sub x1, x0, x1"),
+      // x2 = x1 (即 x2 = 5)
+      assemble("add x2, x1, x0")
+    ))) { c =>
+      waitLoaded(c)
+      // 給 pipeline 足夠的時鐘週期，確保所有指令完成
+      c.clock.step(6)
+
+      // 此時 x1、x2 都應該是 5
+      peekReg(c, 1) shouldBe 5
+      peekReg(c, 2) shouldBe 5
+    }
+  }
+
+  it should "Quiz test 2 (n*m via mul) " in {
+    // 我們測試 n=1..7, m=1..7 共 49 種組合
+    for (n <- 1 to 7; m <- 1 to 7) {
+      test(new ThreeStageSim(List(
+        // x2 <- n
+        assemble(s"addi x2, x0, $n"),
+        // x3 <- m
+        assemble(s"addi x3, x0, $m"),
+        // x1 = x2 * x3
+        assemble("mul x1, x2, x3")
+      ))) { c =>
+        waitLoaded(c)
+
+        // 第1條指令：addi x2, x0, n
+        c.clock.step()
+        c.clock.step(2)
+        peekReg(c, 2) shouldBe n
+
+        // 第2條指令：addi x3, x0, m
+        c.clock.step()
+        c.clock.step(2)
+        peekReg(c, 3) shouldBe m
+
+        // 第3條指令：mul x1, x2, x3
+        c.clock.step()
+        c.clock.step(2)
+        peekReg(c, 1) shouldBe (n*m)
+      }
+    }
+  }
+  def assembleAll(src: String): List[Int] = {
+    // 讓 RISCVAssembler 一次解析整段含 label 的程式
+    val binLines = RISCVAssembler.binOutput(src) 
+    // binLines 會是一串多行的 "101100..." (二進位字串)，每行對應一條指令
+    binLines.split("\n").map { binStr =>
+      // 轉成 32-bit 整數
+      Integer.parseUnsignedInt(binStr, 2)
+    }.toList
+  }
+  it should "Quiz test 2 (logint)" in {
+    val code =
+      """addi x2, x0, 16   # x2 = N=16
+        |addi x3, x0, 0    # x3 = i=0
+        |
+        |loop:
+        |  beq x2, x0, end  # if (x2 == 0) => 跳到 end
+        |  srai x2, x2, 1   # x2 >>= 1
+        |  addi x3, x3, 1   # i++
+        |  jal x0, loop     # 無條件跳回 loop
+        |
+        |end:
+        |  addi x4, x3, -1  # x4 = i - 1
+        |  nop
+        |""".stripMargin
+
+    // 1. 一次組譯多行（含標籤）的程式
+    val initInstrs = assembleAll(code)
+
+    // 2. 建立模組並測試
+    test(new ThreeStageSim(initInstrs)) { c =>
+      // 先等記憶體載入
+      waitLoaded(c)
+
+      // 跑更多 clock，讓整個迴圈執行完畢並更新 x4
+      c.clock.step(40)
+      
+      // 檢查 x4，預期得到 4
+      peekReg(c, 2) shouldBe 4
+    }
+  }
+
+
 }
